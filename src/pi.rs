@@ -1,3 +1,5 @@
+use std::collections::btree_map::Range;
+
 use rug::Float;
 
 pub struct PiCache {
@@ -14,13 +16,13 @@ impl PiCache {
         let a = four_precise.clone() * (one_precise.clone() / five_precise).atan();
         let b = (one_precise / precise_239).atan();
 
-        return Self {
-            digits: (four_precise * (a - b)).to_string().into_bytes(),
-        };
-    }
+        let mut digits = (four_precise * (a - b)).to_string().into_bytes();
+        digits.remove(0);
+        digits.remove(0);
 
-    pub fn get_digits_to_prec(&self, prec: usize) -> &[u8] {
-        return &self.digits[0..prec];
+        return Self {
+            digits: digits,
+        };
     }
 
     pub fn search(&self, sequence: String) -> i128 {
@@ -35,7 +37,7 @@ impl PiCache {
                     current_sequence_start = index as i128;
                 }
                 if search_index + 1 == search.len() {
-                    return (current_sequence_start - 1) as i128;
+                    return current_sequence_start as i128;
                 }
                 search_index += 1;
             } else {
@@ -44,5 +46,16 @@ impl PiCache {
         }
 
         return -1;
+    }
+
+    pub fn get_digits_in_range_str(&self, range: (usize, usize)) -> String{
+        let mut digits_str = String::new();
+        let digits = &self.digits[range.0..range.1];
+
+        for ch in digits.iter() {
+            digits_str.push(*ch as char);
+        }
+
+        return digits_str;
     }
 }
