@@ -1,5 +1,3 @@
-use std::convert::TryFrom;
-
 use rug::Float;
 
 pub struct PiCache {
@@ -7,10 +5,10 @@ pub struct PiCache {
 }
 
 impl PiCache {
-    pub fn calculate(precision: u32) -> PiCache{
-        let one_precise = Float::with_val(precision, 1.0); 
-        let four_precise = Float::with_val(precision, 4.0); 
-        let five_precise = Float::with_val(precision, 5.0);  
+    pub fn calculate(precision: u32) -> PiCache {
+        let one_precise = Float::with_val(precision, 1.0);
+        let four_precise = Float::with_val(precision, 4.0);
+        let five_precise = Float::with_val(precision, 5.0);
         let precise_239 = Float::with_val(precision, 239.0);
 
         let a = four_precise.clone() * (one_precise.clone() / five_precise).atan();
@@ -18,14 +16,14 @@ impl PiCache {
 
         return Self {
             digits: (four_precise * (a - b)).to_string().into_bytes(),
-        }
+        };
     }
 
     pub fn get_digits_to_prec(&self, prec: usize) -> &[u8] {
         return &self.digits[0..prec];
     }
 
-    pub fn search(&self, sequence: String) -> i128{
+    pub fn search(&self, sequence: String) -> i128 {
         let search = sequence.as_bytes();
         let mut search_index: usize = 0;
 
@@ -40,8 +38,7 @@ impl PiCache {
                     return (current_sequence_start - 1) as i128;
                 }
                 search_index += 1;
-            }
-            else {
+            } else {
                 search_index = 0;
             }
         }
