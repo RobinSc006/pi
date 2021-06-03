@@ -101,11 +101,9 @@ async fn main() {
         }
 
         let temp_calc_precision = ui_state.pi_calc_precision;
+        let temp_search_sequence = ui_state.current_pi_search.clone();
 
         if ui_state.generation_button_clicked {
-            let pi_cache_arc = Arc::clone(&pi_cache_mutex);
-            let _locked_pi_cache = pi_cache_arc.lock().unwrap();
-
             let pi_cache_arc = Arc::clone(&pi_cache_mutex);
 
             async_runtime.spawn(async move {
@@ -118,12 +116,32 @@ async fn main() {
             ui_state.status = gui::MESSAGE_STATUS_GENERATING.to_owned();
         }
 
+        if ui_state.search_button_clicked {
+            let pi_cache_arc = Arc::clone(&pi_cache_mutex);
+
+            async_runtime.spawn(async move {
+                let mut locked_pi_cache = pi_cache_arc.lock().unwrap();
+
+                locked_pi_cache.search(temp_search_sequence);
+            });
+
+            ui_state.status = gui::MESSAGE_STATUS_SEARCHING.to_owned();
+        }
+
         if pi_cache_received_temp.calculated {
-            ui_state.status = gui::MESSAGE_STATUS_DONE.to_owned();
             ui_state.current_pi_precision = pi_cache_received_temp.precision;
             ui_state.pi_size_bytes = pi_cache_received_temp.get_size_bytes() as u64;
 
+            ui_state.status = gui::MESSAGE_STATUS_DONE.to_owned();
             pi_cache_received_temp.calculated = false;
+        }
+
+        if pi_cache_received_temp.searched {
+            ui_state.current_pi_search_result =
+                pi_cache_received_temp.current_search_result.to_string();
+
+            ui_state.status = gui::MESSAGE_STATUS_DONE.to_owned();
+            pi_cache_received_temp.searched = false;
         }
 
         // Update current pi cache with temporary cache

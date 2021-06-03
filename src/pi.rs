@@ -5,7 +5,9 @@ use rug::Float;
 pub struct PiCache {
     pub digits: Vec<u8>,
     pub calculated: bool,
+    pub searched: bool,
     pub precision: u32,
+    pub current_search_result: i128,
 }
 
 #[allow(dead_code)]
@@ -30,7 +32,7 @@ impl PiCache {
         self.precision = precision;
     }
 
-    pub fn search(&self, sequence: String) -> i128 {
+    pub fn search(&mut self, sequence: String) {
         let search = sequence.as_bytes();
         let mut search_index: usize = 0;
 
@@ -42,7 +44,9 @@ impl PiCache {
                     current_sequence_start = index as i128;
                 }
                 if search_index + 1 == search.len() {
-                    return current_sequence_start as i128;
+                    self.current_search_result = current_sequence_start as i128;
+                    self.searched = true;
+                    return;
                 }
                 search_index += 1;
             } else {
@@ -50,7 +54,8 @@ impl PiCache {
             }
         }
 
-        return -1;
+        self.searched = true;
+        self.current_search_result = -1;
     }
 
     pub fn get_digits_in_range_str(&self, range: (usize, usize)) -> String {
