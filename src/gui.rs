@@ -1,3 +1,4 @@
+use __core::fmt::Debug;
 use imgui::*;
 
 use std::time::Duration;
@@ -64,6 +65,7 @@ fn draw_search_window(ui: &Ui, state: &mut State) {
 }
 
 fn draw_info_window(ui: &Ui, state: &mut State) {
+    use humantime::format_duration;
     use num_format::{Locale, ToFormattedString};
     use pretty_bytes::converter::convert;
 
@@ -78,6 +80,10 @@ fn draw_info_window(ui: &Ui, state: &mut State) {
             state.current_pi_precision.to_formatted_string(&Locale::en)
         ));
         ui.text(im_str!("Size: {}", convert(state.pi_size_bytes as f64)));
+        ui.text(im_str!(
+            "Time: {}",
+            format_duration(state.current_pi_generation_time)
+        ));
     });
 }
 
@@ -93,6 +99,7 @@ pub struct State {
     pub pi_size_bytes: u64,
     pub current_pi_search: String,
     pub current_pi_search_result: String,
+    pub current_pi_generation_time: Duration,
 
     pub generation_button_clicked: bool,
     pub search_button_clicked: bool,

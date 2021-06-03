@@ -1,18 +1,24 @@
+use std::time::{Duration, Instant};
+
 use rug::Float;
 
-#[repr(C)]
 #[derive(Clone, Debug, Default)]
 pub struct PiCache {
     pub digits: Vec<u8>,
     pub calculated: bool,
     pub searched: bool,
     pub precision: u32,
+    pub generation_time: Duration,
     pub current_search_result: i128,
 }
 
 #[allow(dead_code)]
 impl PiCache {
+    /// Computes Pi using machin's formula
+    /// https://en.wikipedia.org/wiki/Machin-like_formula
     pub fn calculate(&mut self, precision: u32) {
+        let start = Instant::now();
+
         self.calculated = false;
 
         let one_precise = Float::with_val(precision, 1.0);
@@ -30,8 +36,10 @@ impl PiCache {
         self.digits = digits;
         self.calculated = true;
         self.precision = precision;
-    }
 
+        self.generation_time = start.elapsed();
+    }
+    /// Searches for a given sequence in generated digits
     pub fn search(&mut self, sequence: String) {
         let search = sequence.as_bytes();
         let mut search_index: usize = 0;
@@ -69,6 +77,7 @@ impl PiCache {
         return digits_str;
     }
 
+    /// Returns size of the digits vector in bytes
     pub fn get_size_bytes(&self) -> usize {
         let bytes = self.digits.len() * std::mem::size_of::<u8>();
         return bytes;

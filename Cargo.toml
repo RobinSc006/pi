@@ -1,6 +1,6 @@
 [package]
 name = "pi"
-version = "0.1.0"
+version = "0.2.5"
 authors = ["Robin Schulz <robinschulz3000@gmail.com>"]
 edition = "2018"
 
@@ -16,4 +16,5 @@ imgui-opengl-renderer = "*"
 tokio = { version = "1", features = ["full"] }
 num-format = "*"
 pretty-bytes = "*"
+humantime = "*"
 log = "*"

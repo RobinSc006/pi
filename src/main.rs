@@ -14,8 +14,7 @@ use pi::PiCache;
 mod gui;
 mod pi;
 
-#[tokio::main]
-async fn main() {
+fn main() {
     // ! MISC GRAPHICS ---
     // Sdl/Opengl setup
     let sdl_context = sdl2::init().unwrap();
@@ -27,15 +26,16 @@ async fn main() {
         gl_attr.set_context_version(3, 3);
     }
 
+    // Sdl window creation
     let window = video
-        .window("Pi", 1000, 1000)
+        .window("Pi", 580, 480)
         .position_centered()
-        .resizable()
         .opengl()
         .allow_highdpi()
         .build()
         .unwrap();
 
+    // Gl context creation
     let _gl_context = window
         .gl_create_context()
         .expect("Couldn't create GL context");
@@ -55,10 +55,10 @@ async fn main() {
     // Timing setup
     let mut last_frame = Instant::now();
 
+    // ! MISC GRAPHICS END ---
+
     // * Tokio runtime setup
     let async_runtime = tokio::runtime::Runtime::new().unwrap();
-
-    // ! MISC GRAPHICS END ---
 
     // * Ui state setup
     let mut ui_state = gui::State::default();
@@ -95,17 +95,19 @@ async fn main() {
             }
         }
 
-        // Ui state update
+        // Check if pi cache is currently being manipulated by other threads
         if pi_cache_arc.try_lock().is_ok() {
             pi_cache_received_temp = pi_cache_arc.lock().unwrap().clone();
         }
 
+        // Create temporary variables to avoid borrowing issues
         let temp_calc_precision = ui_state.pi_calc_precision;
         let temp_search_sequence = ui_state.current_pi_search.clone();
 
         if ui_state.generation_button_clicked {
             let pi_cache_arc = Arc::clone(&pi_cache_mutex);
 
+            // Spawn non-blocking worker thread
             async_runtime.spawn(async move {
                 let mut locked_pi_cache = pi_cache_arc.lock().unwrap();
 
@@ -119,6 +121,7 @@ async fn main() {
         if ui_state.search_button_clicked {
             let pi_cache_arc = Arc::clone(&pi_cache_mutex);
 
+            // Spawn non-blocking worker thread
             async_runtime.spawn(async move {
                 let mut locked_pi_cache = pi_cache_arc.lock().unwrap();
 
@@ -133,6 +136,7 @@ async fn main() {
             ui_state.pi_size_bytes = pi_cache_received_temp.get_size_bytes() as u64;
 
             ui_state.status = gui::MESSAGE_STATUS_DONE.to_owned();
+            ui_state.current_pi_generation_time = pi_cache_received_temp.generation_time;
             pi_cache_received_temp.calculated = false;
         }
 
@@ -144,7 +148,7 @@ async fn main() {
             pi_cache_received_temp.searched = false;
         }
 
-        // Update current pi cache with temporary cache
+        // Update current pi cache with temporary
         if pi_cache_arc.try_lock().is_ok() {
             let mut a = pi_cache_arc.lock().unwrap();
             *a = pi_cache_received_temp.clone();
@@ -155,7 +159,7 @@ async fn main() {
         // * Render
         imgui_sdl2.prepare_frame(imgui.io_mut(), &window, &event_pump.mouse_state());
 
-        // Calculate delta time
+        // Calculate delta time for imgui
         let now = Instant::now();
         let delta = now - last_frame;
         let delta_s = delta.as_secs() as f32 + delta.subsec_nanos() as f32 / 1_000_000_000.0;
@@ -166,9 +170,14 @@ async fn main() {
         let ui = imgui.frame();
         gui::draw_gui(&ui, &mut ui_state);
 
-        // Unsafe gl code
+        // Unsafe gl code to clear window
         unsafe {
-            gl::ClearColor(0.2, 0.2, 0.2, 1.0);
+            gl::ClearColor(
+                0.12941176470588237,
+                0.12941176470588237,
+                0.12941176470588237,
+                1.0,
+            );
             gl::Clear(gl::COLOR_BUFFER_BIT);
         }
 
@@ -179,8 +188,9 @@ async fn main() {
         window.gl_swap_window();
         // * Render end
 
-        //std::thread::sleep(::std::time::Duration::new(0, 1_000_000_000u32 / 60));
+        std::thread::sleep(::std::time::Duration::new(0, 1_000_000_000u32 / 60));
     }
 
+    // Stop all threads in tokio's pool
     async_runtime.shutdown_background();
 }
