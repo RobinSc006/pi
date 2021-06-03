@@ -11,8 +11,11 @@ use std::{
 
 use pi::PiCache;
 
+use crate::util::convert_vec_u8_to_f32;
+
 mod gui;
 mod pi;
+mod util;
 
 fn main() {
     // ! MISC GRAPHICS ---
@@ -28,7 +31,7 @@ fn main() {
 
     // Sdl window creation
     let window = video
-        .window("Pi", 580, 480)
+        .window("Pi explorer", 580, 480)
         .position_centered()
         .opengl()
         .allow_highdpi()
@@ -137,12 +140,23 @@ fn main() {
 
             ui_state.status = gui::MESSAGE_STATUS_DONE.to_owned();
             ui_state.current_pi_generation_time = pi_cache_received_temp.generation_time;
+
             pi_cache_received_temp.calculated = false;
         }
 
         if pi_cache_received_temp.searched {
             ui_state.current_pi_search_result =
                 pi_cache_received_temp.current_search_result.to_string();
+
+            let search_vis_range: (usize, usize) = (
+                ((ui_state.current_pi_search_result.parse::<i64>().unwrap() - 10)
+                    .clamp(0, ui_state.current_pi_precision as i64)) as usize,
+                ((ui_state.current_pi_search_result.parse::<i64>().unwrap() + 10)
+                    .clamp(0, ui_state.current_pi_precision as i64)) as usize,
+            );
+            ui_state.pi_digits = convert_vec_u8_to_f32(
+                &pi_cache_received_temp.get_digits_in_range(search_vis_range),
+            );
 
             ui_state.status = gui::MESSAGE_STATUS_DONE.to_owned();
             pi_cache_received_temp.searched = false;

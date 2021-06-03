@@ -1,7 +1,9 @@
-use __core::fmt::Debug;
+use __core::{fmt::Debug};
 use imgui::*;
 
 use std::time::Duration;
+
+
 
 pub const MESSAGE_STATUS_GENERATING: &str = "Generating...";
 pub const MESSAGE_STATUS_SEARCHING: &str = "Searching...";
@@ -38,8 +40,8 @@ fn draw_generation_window(ui: &Ui, state: &mut State) {
 
 fn draw_search_window(ui: &Ui, state: &mut State) {
     let window = Window::new(im_str!("Search"))
-        .size([300.0, 150.0], Condition::Always)
-        .position([220.0, 175.0], Condition::Appearing);
+        .size([300.0, 170.0], Condition::Always)
+        .position([220.0, 180.0], Condition::Appearing);
 
     let mut query = ImString::new(&state.current_pi_search);
     let mut result_str = state.current_pi_search_result.clone();
@@ -49,6 +51,11 @@ fn draw_search_window(ui: &Ui, state: &mut State) {
 
     window.build(&ui, || {
         ui.text_wrapped(&im_str!("Index: {}", result_str));
+
+        ui.separator();
+
+        ui.plot_histogram(im_str!(""), &state.pi_digits).build();
+        ui.plot_lines(im_str!(""), &state.pi_digits).build();
 
         ui.separator();
 
@@ -100,6 +107,7 @@ pub struct State {
     pub current_pi_search: String,
     pub current_pi_search_result: String,
     pub current_pi_generation_time: Duration,
+    pub pi_digits: Vec<f32>,
 
     pub generation_button_clicked: bool,
     pub search_button_clicked: bool,

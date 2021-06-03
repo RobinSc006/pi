@@ -33,9 +33,9 @@ impl PiCache {
         digits.remove(0);
         digits.remove(0);
 
-        self.digits = digits;
+        self.precision = digits.len() as u32;
         self.calculated = true;
-        self.precision = precision;
+        self.digits = digits;
 
         self.generation_time = start.elapsed();
     }
@@ -75,6 +75,10 @@ impl PiCache {
         }
 
         return digits_str;
+    }
+
+    pub fn get_digits_in_range(&self, range: (usize, usize)) -> Vec<u8> {
+        return self.digits[range.0..range.1].to_vec();
     }
 
     /// Returns size of the digits vector in bytes

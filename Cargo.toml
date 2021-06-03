@@ -13,7 +13,7 @@ gl = "*"
 imgui = "*"
 imgui-sdl2 = "*"
 imgui-opengl-renderer = "*"
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "*", features = ["full"] }
 num-format = "*"
 pretty-bytes = "*"
 humantime = "*"
