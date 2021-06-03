@@ -1,6 +1,6 @@
 [package]
 name = "pi"
-version = "0.2.5"
+version = "0.2.7"
 authors = ["Robin Schulz <robinschulz3000@gmail.com>"]
 edition = "2018"
 

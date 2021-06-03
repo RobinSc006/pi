@@ -104,8 +104,11 @@ fn main() {
         }
 
         // Create temporary variables to avoid borrowing issues
-        let temp_calc_precision = ui_state.pi_calc_precision;
-        let temp_search_sequence = ui_state.current_pi_search.clone();
+        let temp_calc_precision = ui_state.pi_calc_precision.clamp(100, u32::MAX);
+        let mut temp_search_sequence = ui_state.current_pi_search.clone();
+        if temp_search_sequence.is_empty() {
+            temp_search_sequence = String::from("1");
+        }
 
         if ui_state.generation_button_clicked {
             let pi_cache_arc = Arc::clone(&pi_cache_mutex);

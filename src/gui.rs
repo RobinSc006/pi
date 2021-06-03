@@ -1,9 +1,7 @@
-use __core::{fmt::Debug};
+use __core::fmt::Debug;
 use imgui::*;
 
 use std::time::Duration;
-
-
 
 pub const MESSAGE_STATUS_GENERATING: &str = "Generating...";
 pub const MESSAGE_STATUS_SEARCHING: &str = "Searching...";
