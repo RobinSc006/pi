@@ -1,13 +1,18 @@
-use std::collections::btree_map::Range;
-
 use rug::Float;
 
+#[repr(C)]
+#[derive(Clone, Debug, Default)]
 pub struct PiCache {
-    digits: Vec<u8>,
+    pub digits: Vec<u8>,
+    pub calculated: bool,
+    pub precision: u32,
 }
 
+#[allow(dead_code)]
 impl PiCache {
-    pub fn calculate(precision: u32) -> PiCache {
+    pub fn calculate(&mut self, precision: u32) {
+        self.calculated = false;
+
         let one_precise = Float::with_val(precision, 1.0);
         let four_precise = Float::with_val(precision, 4.0);
         let five_precise = Float::with_val(precision, 5.0);
@@ -20,9 +25,9 @@ impl PiCache {
         digits.remove(0);
         digits.remove(0);
 
-        return Self {
-            digits: digits,
-        };
+        self.digits = digits;
+        self.calculated = true;
+        self.precision = precision;
     }
 
     pub fn search(&self, sequence: String) -> i128 {
@@ -48,7 +53,7 @@ impl PiCache {
         return -1;
     }
 
-    pub fn get_digits_in_range_str(&self, range: (usize, usize)) -> String{
+    pub fn get_digits_in_range_str(&self, range: (usize, usize)) -> String {
         let mut digits_str = String::new();
         let digits = &self.digits[range.0..range.1];
 
@@ -57,5 +62,10 @@ impl PiCache {
         }
 
         return digits_str;
+    }
+
+    pub fn get_size_bytes(&self) -> usize {
+        let bytes = self.digits.len() * std::mem::size_of::<u8>();
+        return bytes;
     }
 }

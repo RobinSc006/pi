@@ -8,4 +8,12 @@ edition = "2018"
 
 [dependencies]
 rug = "*"
-read_input = "*"
+sdl2 = "*"
+gl = "*"
+imgui = "*"
+imgui-sdl2 = "*"
+imgui-opengl-renderer = "*"
+tokio = { version = "1", features = ["full"] }
+num-format = "*"
+pretty-bytes = "*"
+log = "*"
